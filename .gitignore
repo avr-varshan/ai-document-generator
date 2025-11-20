@@ -1,0 +1,103 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env.*.local
+.env.*.development
+.env.*.production
+.env.*.test
+
+# Python
+*.py[cod]
+*$py.class
+*$pyc.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# FastAPI / uvicorn
+uvicorn_error.log
+uvicorn_access.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Database
+*.db
+*.db-journal
+
+# Logs
+logs/
+*.log
+
+# Frontend
+dist/
+build/
+.nuxt/
+.next/
+out/
+coverage/
+
+# Backend
+ai_doc_platform.db
+*.sqlite3
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.crt
+*.cert
+*.p12
+
+# Development
+coverage/
+.coverage
+.pytest_cache/
+.hypothesis/
