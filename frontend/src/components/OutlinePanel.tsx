@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Section, projectApi, sectionApi } from '../lib/api.ts';
+import { Section, projectApi, sectionApi } from '../lib/api';
 import { PlusIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 interface OutlinePanelProps {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { deleteProject } from '../lib/api.ts';
+import { deleteProject } from '../lib/api';
 
 export interface UseDeleteProjectResult {
   deleteProject: (projectId: string) => Promise<void>;
