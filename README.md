@@ -103,9 +103,9 @@ A complete 10-minute demonstration of the AI Document Platform is available here
 ---
 ### **Database: PostgreSQL (Supabase)**
 
-![Database Schema](resource/database-schema.svg)
+![Database Schema](database-schema.svg)
 
-*Entity-Relationship Diagram showing the core data model: Users → Projects → Sections → Content & History*
+*The database schema shows the complete relationship structure with users, projects, sections, content, and interaction history.*
 ---
 ## 📦 **Project Structure**
 
