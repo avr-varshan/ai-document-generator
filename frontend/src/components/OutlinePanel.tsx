@@ -10,15 +10,24 @@ interface OutlinePanelProps {
   projectId: string;
 }
 
-export const OutlinePanel = ({ sections, selectedSectionId, onSelectSection, onAddSection, projectId }: OutlinePanelProps) => {
+export const OutlinePanel = ({
+  sections,
+  selectedSectionId,
+  onSelectSection,
+  projectId,
+}: OutlinePanelProps) => {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [draggingId, setDraggingId] = useState<string | null>(null);
 
+  // Modal state for delete confirmation
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  // ➤ ADD SECTION
   const addMutation = useMutation({
     mutationFn: async (title: string) => {
-      const order = (sections?.length || 0) + 1; // append at end (1-based)
+      const order = (sections?.length || 0) + 1;
       return projectApi.addSection(projectId, { title, order });
     },
     onSuccess: (created) => {
@@ -30,9 +39,20 @@ export const OutlinePanel = ({ sections, selectedSectionId, onSelectSection, onA
     },
   });
 
+  // ➤ REORDER SECTION
   const reorderMutation = useMutation({
     mutationFn: ({ sectionId, newIndex }: { sectionId: string; newIndex: number }) =>
-      sectionApi.reorderSection(sectionId, newIndex + 1), // backend is 1-based
+      sectionApi.reorderSection(sectionId, newIndex + 1),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    },
+  });
+
+  // ➤ DELETE SECTION
+  const deleteMutation = useMutation({
+    mutationFn: async (sectionId: string) => {
+      return sectionApi.deleteSection(sectionId);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
     },
@@ -50,110 +70,177 @@ export const OutlinePanel = ({ sections, selectedSectionId, onSelectSection, onA
   };
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 h-full overflow-y-auto">
-      <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Outline</h2>
-        {isAdding ? (
-          <div className="space-y-2">
-            <input
-              type="text"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Section title"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-            />
-            <div className="flex gap-2">
+    <>
+      <div className="w-80 bg-white border-r border-gray-200 h-full overflow-y-auto">
+        <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Outline</h2>
+
+          {isAdding ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="Section title"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => addMutation.mutate(newTitle)}
+                  disabled={!newTitle.trim() || addMutation.isPending}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition disabled:opacity-50"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  {addMutation.isPending ? 'Adding...' : 'Add'}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsAdding(false);
+                    setNewTitle('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAdding(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition"
+            >
+              <PlusIcon className="w-4 h-4" />
+              Add Section
+            </button>
+          )}
+        </div>
+
+        <div className="p-2">
+          {sections.length === 0 ? (
+            <div className="text-center py-8 px-4">
+              <Bars3Icon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm text-gray-500">No sections yet. Add one to get started.</p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {sections.map((section, idx) => (
+                <div
+                  key={section.id}
+                  className={`flex items-center justify-between ${
+                    draggingId === section.id ? 'opacity-60' : ''
+                  }`}
+                  draggable
+                  onDragStart={() => setDraggingId(section.id)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => {
+                    if (draggingId) {
+                      reorderMutation.mutate({ sectionId: draggingId, newIndex: idx });
+                      setDraggingId(null);
+                    }
+                  }}
+                >
+                  {/* Select Section */}
+                  <button
+                    onClick={() => onSelectSection(section.id)}
+                    className={`flex-1 text-left p-3 rounded-lg transition ${
+                      selectedSectionId === section.id
+                        ? 'bg-primary-50 border border-primary'
+                        : 'hover:bg-gray-50 border border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <span className="text-xs font-medium text-gray-500">
+                        Section {section.order}
+                      </span>
+                      {section.status && (
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded ${getStatusColor(
+                            section.status
+                          )}`}
+                        >
+                          {section.status}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+                      {section.title}
+                    </h3>
+                  </button>
+
+                  {/* Move Up, Move Down, Delete */}
+                  <div className="flex items-center gap-2 px-2 shrink-0">
+                    <button
+                      aria-label="Move up"
+                      disabled={idx === 0 || reorderMutation.isPending}
+                      onClick={() =>
+                        reorderMutation.mutate({
+                          sectionId: section.id,
+                          newIndex: idx - 1,
+                        })
+                      }
+                      className="px-2 py-1 rounded border disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      ↑
+                    </button>
+
+                    <button
+                      aria-label="Move down"
+                      disabled={idx === sections.length - 1 || reorderMutation.isPending}
+                      onClick={() =>
+                        reorderMutation.mutate({
+                          sectionId: section.id,
+                          newIndex: idx + 1,
+                        })
+                      }
+                      className="px-2 py-1 rounded border disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      ↓
+                    </button>
+
+                    <button
+                      aria-label="Delete section"
+                      onClick={() => setDeleteTarget(section.id)}
+                      disabled={deleteMutation.isPending}
+                      className="px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Delete Section?</h3>
+            <p className="text-sm text-gray-600 mb-6">This action cannot be undone.</p>
+
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => addMutation.mutate(newTitle)}
-                disabled={!newTitle.trim() || addMutation.isPending}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition disabled:opacity-50"
-              >
-                <PlusIcon className="w-4 h-4" />
-                {addMutation.isPending ? 'Adding...' : 'Add'}
-              </button>
-              <button
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewTitle('');
-                }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
               >
                 Cancel
               </button>
+
+              <button
+                onClick={() => {
+                  deleteMutation.mutate(deleteTarget);
+                  setDeleteTarget(null);
+                }}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
           </div>
-        ) : (
-          <button
-            onClick={() => setIsAdding(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Add Section
-          </button>
-        )}
-      </div>
-
-      <div className="p-2">
-        {sections.length === 0 ? (
-          <div className="text-center py-8 px-4">
-            <Bars3Icon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-500">No sections yet. Add one to get started.</p>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {sections.map((section, idx) => (
-              <div
-                key={section.id}
-                className={`flex items-center justify-between ${draggingId === section.id ? 'opacity-60' : ''}`}
-                draggable
-                onDragStart={() => setDraggingId(section.id)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => {
-                  if (draggingId) {
-                    reorderMutation.mutate({ sectionId: draggingId, newIndex: idx });
-                    setDraggingId(null);
-                  }
-                }}
-              >
-                <button
-                  onClick={() => onSelectSection(section.id)}
-                  className={`w-full text-left p-3 rounded-lg transition ${
-                    selectedSectionId === section.id ? 'bg-primary-50 border border-primary' : 'hover:bg-gray-50 border border-transparent'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-xs font-medium text-gray-500">Section {section.order}</span>
-                    {section.status && (
-                      <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(section.status)}`}>
-                        {section.status}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-medium text-gray-900 text-sm line-clamp-2">{section.title}</h3>
-                </button>
-                <div className="flex items-center gap-2 px-2">
-                  <button
-                    aria-label="Move up"
-                    disabled={idx === 0 || reorderMutation.isPending}
-                    onClick={() => reorderMutation.mutate({ sectionId: section.id, newIndex: idx - 1 })}
-                    className="px-2 py-1 rounded border disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    aria-label="Move down"
-                    disabled={idx === sections.length - 1 || reorderMutation.isPending}
-                    onClick={() => reorderMutation.mutate({ sectionId: section.id, newIndex: idx + 1 })}
-                    className="px-2 py-1 rounded border disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    ↓
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };

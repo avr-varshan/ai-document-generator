@@ -808,3 +808,41 @@ def delete_project(
         "message": f"Project '{project_title}' (ID: {project_id}) and all associated data deleted successfully",
         "deleted_project_id": project_id
     }
+
+@app.delete("/sections/{section_id}", status_code=status.HTTP_200_OK)
+def delete_section(
+    section_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    """
+    Delete a single section and all associated content + history.
+
+    Args:
+        section_id: ID of the section to delete
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Deletion confirmation message
+    """
+    # Verify section exists and belongs to current authenticated user
+    db_section = db.query(models.Section).filter(
+        models.Section.id == section_id,
+        models.Section.project_id == models.Project.id,
+        models.Project.user_id == current_user.id
+    ).join(models.Project).first()
+
+    if not db_section:
+        raise HTTPException(status_code=404, detail="Section not found or unauthorized")
+
+    section_title = db_section.title
+
+    # Delete the section (CASCADE will delete structured_content + history)
+    db.delete(db_section)
+    db.commit()
+
+    return {
+        "message": f"Section '{section_title}' (ID: {section_id}) deleted successfully",
+        "deleted_section_id": section_id
+    }
