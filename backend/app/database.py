@@ -7,30 +7,32 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 load_dotenv()
 
-# Use DATABASE_URL from environment variable (Supabase) or fallback to SQLite for local dev
+# Use Supabase DATABASE_URL or fallback to SQLite locally
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    # Fallback to SQLite for local development
+    # Local dev fallback
     DATABASE_URL = "sqlite:///./ai_doc_platform.db"
     print("Using LOCAL SQLite database:", DATABASE_URL)
     engine = create_engine(
         DATABASE_URL, connect_args={"check_same_thread": False}
     )
 else:
-    # Use Supabase PostgreSQL connection
-    engine = create_engine(DATABASE_URL)
+    # Supabase requires SSL ALWAYS
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"sslmode": "require"}
+    )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
 Base = declarative_base()
 
 def get_db():
-    """
-    Dependency to get database session for FastAPI endpoints.
-    
-    Yields:
-        Database session for use in endpoints
-    """
     db = SessionLocal()
     try:
         yield db
