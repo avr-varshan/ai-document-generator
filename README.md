@@ -101,7 +101,12 @@ A complete 10-minute demonstration of the AI Document Platform is available here
 - **Rate Limiting**: Respects Anthropic API rate limits
 
 ---
+### **Database: PostgreSQL (Supabase)**
 
+![Database Schema](resource/database-schema.svg)
+
+*Entity-Relationship Diagram showing the core data model: Users → Projects → Sections → Content & History*
+---
 ## 📦 **Project Structure**
 
 ```
