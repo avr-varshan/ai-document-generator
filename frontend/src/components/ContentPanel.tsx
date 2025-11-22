@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Section } from '../lib/api';
+import { Section } from '../lib/api.ts';
 import { HandThumbUpIcon, HandThumbDownIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolidIcon, HandThumbDownIcon as HandThumbDownSolidIcon } from '@heroicons/react/24/solid';
 

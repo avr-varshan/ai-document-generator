@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { DocumentTextIcon, PresentationChartBarIcon, TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { Project } from '../lib/api';
+import { Project } from '../lib/api.ts';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
