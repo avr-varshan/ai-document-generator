@@ -340,44 +340,14 @@ Exported documents feature **professional formatting**:
 - **HTTP Security**: Proper headers and security best practices
 
 
----
-
-## 🎯 **Why This Implementation Stands Out**
-
-### **OceanAI Mission Alignment**
-This platform directly supports **OceanAI's mission** of "harnessing the power of AI for maritime innovation" by:
-- Providing a foundation for **maritime document generation** (reports, analyses, compliance documents)
-- Demonstrating **cutting-edge AI integration** capabilities
-- Showing **customized solution development** expertise
-- Proving ability to deliver **production-ready AI solutions**
-
-### **Generative AI Developer Skills Demonstrated**
-The implementation showcases **all required skills** from the job description:
-- ✅ **Expert Python proficiency** with modern best practices
-- ✅ **Generative AI project experience** with LLM integration
-- ✅ **LLM Frameworks knowledge** (though Anthropic used directly for simplicity)
-- ✅ **RAG-ready architecture** with proper data structure for future integration
-- ✅ **Database expertise** with both SQL (PostgreSQL) design
-- ✅ **API Development** with FastAPI and comprehensive RESTful design
-- ✅ **Frontend skills** with React and responsive design
-
-### **Production-Ready Quality**
-- **Enterprise-grade code quality** with proper error handling
-- **Comprehensive documentation** suitable for team collaboration
-- **Scalable architecture** ready for production deployment
-- **Security-first approach** with proper authentication and data protection
 
 ---
 
 ## 📞 **Contact Information**
 
-**Assignment Submission for:**  
-Generative AI Developer Position  
-OceanAI (MariApps Marine Solutions Private Limited)
 
-**Candidate:**  
 Avr Varshan  
-Email: avr.varshaj20@gmail.com  
+Email: avr.varshan20@gmail.com  
 
 **Repository:**  
 https://github.com/avr-varshan/ai-document-generator
@@ -392,4 +362,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**OceanAI Document Platform - Transforming Ideas into Professional Documents with the Power of AI**
