@@ -12,7 +12,7 @@ Designed with **OceanAI's maritime innovation mission** in mind, this platform d
 ## 🎥 **Demo Video**
 
 A complete 10-minute demonstration of the AI Document Platform is available here:  
-**[Watch Demo Video](https://youtu.be/_kGukojZFbE?si=35sAXCr9l4y-ZjZ5)**
+**[Watch Demo Video](https://youtu.be/_kGukojZFbE?si=A6s42qtckD4pPgPx)**
 
 
 
